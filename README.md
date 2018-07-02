@@ -1,2 +1,2 @@
-# simple-data
-I contain works with the HtDF recipe in DrRacket/BSL.
+# How to Code: Simple Data
+Coursework from edX's (above named) course.
