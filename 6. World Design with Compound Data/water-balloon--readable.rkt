@@ -51,7 +51,7 @@
 (require 2htdp/image)
 (require 2htdp/universe)
 
-;; My world program  (make this more specific)
+;; Spinning Balloon
 
 ;; =================
 ;; Constants:
@@ -65,8 +65,6 @@
 ;; =================
 ;; Data definitions:
 
-;; Balloon is ... (give Balloon a better name)
-
 (define-struct balloon (x angle))
 ;; Balloon is (make-balloon (Integer Natural[0, 360]))
 ;; interp. x is the x-position of the balloon and angle is the spinning angle of the balloon
@@ -74,15 +72,15 @@
 (define B1 (make-balloon 50 180))
 (define B2 (make-balloon 150 360))
 #;
-(define (fn-for-balloon b)
-  (... (balloon-x b)
-       (balloon-angle b)))
+(define (fn-for-balloon bal)
+  (... (balloon-x bal)
+       (balloon-angle bal)))
 
 ;; =================
 ;; Functions:
 
 ;; Balloon -> Balloon
-;; start the world with ...
+;; start the world with (main (make-balloon 0 0))
 ;; 
 (define (main bal)
   (big-bang bal                          ; Balloon
@@ -97,16 +95,26 @@
 
 (check-expect (tock (make-balloon 90 350)) (make-balloon 95 10))    ; 360 -> 0 angle reset case.
 
-(define (tock bal) (make-balloon 0 0))
+; (define (tock bal) (make-balloon 0 0))            ; Stub
+; <Use template from Balloon>
+(define (tock bal)
+  (make-balloon (+ (balloon-x bal) 5) (modulo (+ (balloon-angle bal) 20) 360)))
 
 
 ;; Balloon -> Image
-;; render ... 
-;; !!!
-(define (render bal) ...)
+;; render the balloon
+(check-expect (render (make-balloon 0 0)) (place-image (rotate 0 BALLOON_IMG) 0 CTR-Y MTS))
+(check-expect (render (make-balloon 100 0)) (place-image (rotate 0 BALLOON_IMG) 100 CTR-Y MTS))
+ 
+; (define (render bal) MTS)      ; Stub
+; <Use function from Balloon>
+(define (render bal)
+  (place-image (rotate (balloon-angle bal) BALLOON_IMG) (balloon-x bal) CTR-Y MTS))
 
 ;; Balloon KeyEvent -> Balloon
 ;; reset the x-position of the balloon when the spacebar is pressed
-;; !!!
-(define (handle-key bal) ...)
+(check-expect (handle-key (make-balloon 0 0) " ") (make-balloon 0 0))    ; All cases reset to 0, 0
+
+(define (handle-key bal ke)
+  (make-balloon 0 0))
 
