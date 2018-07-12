@@ -35,7 +35,7 @@
 ;;  - one of: 2 cases
 ;;  - atomic distinct: empty
 ;;  - compound: (cons String ListOfString)
-;;  - 
+;;  - self-reference: (rest los) is ListOfString
 
 ; 
 ; PROBLEM:
@@ -44,3 +44,22 @@
 ; UBC! Design a function that consumes ListOfString and produces true if 
 ; the list includes "UBC".
 ; 
+
+
+;; =======================
+;; Function Definitions:
+
+;; ListOfString -> Boolean
+;; produces true if UBC is included in the given list
+(check-expect (contains-ubc? empty) false)
+(check-expect (contains-ubc? (cons "Harry Potter's Soyboys" (cons "UBC" empty))) true)
+(check-expect (contains-ubc? (cons "The Team Which Must Not Be Named" empty)) false)
+
+; (define (contains-ubc? los) false)     ; Stub
+; <Use template from ListOfString>
+(define (contains-ubc? los)
+  (cond [(empty? los) false]
+        [else
+         (if (string=? (first los) "UBC")
+             true
+             (contains-ubc? (rest los)))]))
