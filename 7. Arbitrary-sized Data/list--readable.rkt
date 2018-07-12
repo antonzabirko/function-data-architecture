@@ -1,25 +1,46 @@
 ;; The first three lines of this file were inserted by DrRacket. They record metadata
 ;; about the language level of this file in a form that our tools can easily process.
 #reader(lib "htdp-beginner-reader.ss" "lang")((modname list--readable) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
-(require 2htdp/image)
 
-empty
+;; quidditch-starter.rkt
 
-(define L1 (cons "Flames" empty))              ; a list of 1 element
-(define L2 (cons 10 (cons 9 (cons 10 empty)))) ; a list of 3 elements
-(define L3 (cons (square 10 "solid" "blue")
-      (cons (triangle 20 "solid" "green") empty)))
+; 
+; PROBLEM:
+; 
+; Imagine that you are designing a program that will keep track of
+; your favorite Quidditch teams. (http://iqaquidditch.org/).
+; 
+; Design a data definition to represent a list of Quidditch teams. 
+;    
 
-(first L1)
-(first L2)
-(first L3)
 
-(rest L1)
-(rest L2)
-(rest L3)
+;; =======================
+;; Data Definitions:
 
-;(... L2)  ; How do I get the second element of L2?
-(first (rest L2)) ; This will give the second element of L2
-(first (rest L2)) ; This will give the third element of L2
+;; ListOfString is one of:
+;; - empty
+;; - (cons String ListOfString)
+;; interp. a list of strings of my favorite Quidditch teams!
+(define LOS0 empty)
+(define LOS1 (cons "Harry Potter's Soyboys" empty))
+(define LOS2 (cons "UBC" (cons "Harry Potter's Soyboys" empty)))
+#;
+(define (fn-for-los los)
+  (cond [(empty? los) (...)]
+        [else
+         (... (first los)
+              (fn-for-los (rest los)))]))
 
-(empty? L1)
+;; Template Rules Used:
+;;  - one of: 2 cases
+;;  - atomic distinct: empty
+;;  - compound: (cons String ListOfString)
+;;  - 
+
+; 
+; PROBLEM:
+; 
+; We want to know whether your list of favorite Quidditch teams includes
+; UBC! Design a function that consumes ListOfString and produces true if 
+; the list includes "UBC".
+; 
