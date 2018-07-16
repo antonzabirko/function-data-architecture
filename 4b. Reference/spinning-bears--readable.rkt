@@ -55,7 +55,7 @@
 ;; ===================
 
 
-;; ===================================================
+;; /*===================================================*\
 ;;
 (define-struct position (x y))
 ;; Position is (make-position Integer Integer)
@@ -73,10 +73,10 @@
 ;;  - atomic non-distinct: Integer
 ;;  - atomic non-distinct: Integer
 ;;
-;; ===================================================
+;; \*===================================================*/
 
 
-;; ===================================================
+;; /*===================================================*\
 ;;
 (define-struct bear (pos angle))
 ;; Bear is (make-bear Position Natural[0, 359)
@@ -94,10 +94,10 @@
 ;;  - reference: (bear-pos be)
 ;;  - atomic non-distinct: Natural[0, 359)
 ;;
-;; ===================================================
+;; \*===================================================*/
 
 
-;; ===================================================
+;; /*===================================================*\
 ;;
 ;; ListOfBear is one of:
 ;;  - empty
@@ -119,7 +119,7 @@
 ;;  - reference: (first lob)
 ;;  - self-reference: (rest lob) is ListOfBear
 ;;
-;; ===================================================
+;; \*===================================================*/
 
 
 
@@ -128,10 +128,10 @@
 ;; ===================
 
 
-;; ===================================================
+;; /*===================================================*\
 ;;
 ;; ListOfBear -> ListOfBear
-;; start the world with (main empty) and click on the screen
+;; start the world with (main empty) and click anywhere on the window that pops-up
 ;; 
 (define (main lob)
   (big-bang lob                    ; ListOfBear
@@ -139,35 +139,99 @@
     (to-draw   render-bears)       ; ListOfBear -> Image
     (on-mouse  create-bear)))      ; ListOfBear Integer Integer MouseEvent -> ListOfBear
 ;;
-;; ===================================================
+;; \*===================================================*/
 
 
-;; ===================================================
+;; /*===================================================*\
 ;;
 ;; ListOfBear -> ListOfBear
 ;; produce the next ListOfBear
-;; !!!
-(define (update-bears lob) ...)
+(check-expect (update-bears empty) empty)
+(check-expect (update-bears (cons (make-bear (make-position 0 0) 0) empty)) (cons (make-bear (make-position 0 0) 20) empty))  ; Standard behaviour
+(check-expect (update-bears (cons (make-bear (make-position 0 0) 0) (cons (make-bear (make-position 1500 -501) 350) empty)))  ; When the angle is >359
+              (cons (make-bear (make-position 0 0) 20) (cons (make-bear (make-position 1500 -501) 10) empty)))
+;(define (update-bears lob) empty)       ; Stub
+;; <Using template from ListOfBear>
+(define (update-bears lob)
+  (cond [(empty? lob) empty]
+        [else
+         (cons (rotate-bear (first lob))
+               (update-bears (rest lob)))]))
 ;;
-;; ===================================================
+;;
+;; ========
+;; rotate-bear is a helper for update-bears
+;;
+;; Bear -> Bear
+;; rotate the given bear + SPEED degrees and return the said bear
+(check-expect (rotate-bear (make-bear (make-position 0 0) 0)) (make-bear (make-position 0 0) 20))             ; Standard Behaviour
+(check-expect (rotate-bear (make-bear (make-position -100 50) 350)) (make-bear (make-position -100 50) 10))    ; When the angle is >359
+;(define (rotate-bear be) (make-bear (bear-pos be) (+ 15 (bear-angle be))))   ; Stub
+;; <Using template from Bear>
+(define (rotate-bear be)
+  (make-bear (bear-pos be) (modulo (+ (bear-angle be) SPEED) 360)))                ; Natural[0, 359)
+;;
+;; ========
+;;
+;; \*===================================================*/
 
 
-;; ===================================================
+;; /*===================================================*\
 ;;
 ;; ListOfBear -> Image
-;; render ListOfBear as all the Bears in the list onto an empty-scene 
-;; !!!
-(define (render-bears lob) ...)
+;; render ListOfBear as all the Bears in the list onto an empty-scene
+(check-expect (render-bears empty) MTS)
+(check-expect (render-bears (cons (make-bear (make-position 100 100) 0) empty))
+              (place-image BEAR 100 100 MTS))
+(check-expect (render-bears (cons (make-bear (make-position 100 100) 0) (cons (make-bear (make-position 600 500) 350) empty)))
+              (place-image BEAR 100 100
+                           (place-image (rotate 350 BEAR) 600 500 MTS)))
+;(define (render-bears lob) MTS)          ; Stub
+; <Using template from ListOfBear>
+
+(define (render-bears lob)
+  (cond [(empty? lob) MTS]
+        [else
+         (render-bear-on (first lob) (render-bears (rest lob)))]))
 ;;
-;; ===================================================
+;;
+;; ========
+;; render-bear-on is a helper for render-bears
+;;
+;; Bear Image -> Image
+;; places a bear on its' proper location upon the MTS
+(check-expect (render-bear-on (make-bear (make-position 0 0) 0) MTS)
+              (place-image (rotate 0 BEAR) 0 0 MTS))
+(check-expect (render-bear-on (make-bear (make-position 50 50) 90) MTS)
+              (place-image (rotate 90 BEAR) 50 50 MTS))
+;;
+(define (render-bear-on bear img)
+  (place-image (rotate (bear-angle bear) BEAR) (position-x (bear-pos bear)) (position-y (bear-pos bear)) img))
+;;
+;; ========
+;;
+;; \*===================================================*/
 
 
-;; ===================================================
+;; /*===================================================*\
 ;;
 ;; ListOfBear Integer Integer MouseEvent -> ListOfBear
 ;; create a new bear at the position of the mouse click
-;; !!!
-(define (create-bear lob) ...)
+(check-expect (create-bear empty 0 0 "button-down")
+              (cons (make-bear (make-position 0 0) 0) empty))
+(check-expect (create-bear (cons (make-bear (make-position 50 50) 0) empty) 300 150 "button-down")
+              (cons (make-bear (make-position 50 50) 0) (cons (make-bear (make-position 300 150) 0) empty)))
+
+;(define (create-bear lob x y me) empty)      ; Stub
+; <Using template from ListOfBear>
+(define (create-bear lob x y me)
+  (if (mouse=? me "button-down")
+      (cond [(empty? lob)
+             (cons (make-bear (make-position x y) 0) empty)]
+            [else
+             (cons (first lob)
+                   (create-bear (rest lob) x y me))])
+      lob))
 ;;
-;; ===================================================
+;; \*===================================================*/
 
